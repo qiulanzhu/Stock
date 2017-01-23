@@ -18,22 +18,31 @@ function sendEmailOfStockInfo() {
   var stockArr = _.keys(config.stockCodeAndPurchasePrice);
   async.map(stockArr,
     function (item, done) {
-      integrateData.getDataOfHtmlBody(item, function (err, result) {
+      integrateData.getDataOfHtmlBody(item, function (err, newStockInfo) {
         if (err) {
           logger.error(err);
           return done(err);
         }
-
-        var htmlBody = dataFormat.toHtmlBody(result);
-        email.sendEmail(htmlBody);
-
-        stockInfo.save(result, function (err, result) {
+        
+        stockInfo.get(newStockInfo.code, function (err, stockInfoArr) {
           if(err){
             logger.error(err);
+            return done(err);
           }
-          logger.ndump('result', result);
+
+          stockInfoArr.push(newStockInfo);
+          var htmlBody = dataFormat.toHtmlBody(stockInfoArr);
+          email.sendEmail(htmlBody);
+
+          stockInfo.save(newStockInfo, function (err, result) {
+            if(err){
+              logger.error(err);
+            }
+            logger.ndump('result', result);
+          });
+          done();
+          
         });
-        done();
       })
     },
     function (err) {
@@ -47,17 +56,25 @@ function StockWarn() {
   var stockArr = _.keys(config.stockCodeAndPurchasePrice);
   async.map(stockArr,
     function (item, done) {
-      integrateData.getDataOfHtmlBody(item, function (err, result) {
+      integrateData.getDataOfHtmlBody(item, function (err, newStockInfo) {
         if (err) {
           logger.error(err);
           return done(err);
         }
 
-        if(result.rateOfPurchase.split('%')[0] <= -1.0){
-          var htmlBody = dataFormat.toHtmlBody(result);
-          email.sendEmail(htmlBody);
+        if(newStockInfo.rateOfPurchase.split('%')[0] <= config.threshold){
+          stockInfo.get(newStockInfo.code, function (err, stockInfoArr) {
+            if(err){
+              logger.error(err);
+              return done(err);
+            }
+
+            stockInfoArr.push(newStockInfo);
+            var htmlBody = dataFormat.toHtmlBody(stockInfoArr);
+            email.sendEmail(htmlBody);
+            done();
+          });
         }
-        done();
       })
     },
     function (err) {
@@ -68,12 +85,12 @@ function StockWarn() {
 }
 
 Cron.startTask = function () {
-  var minuteTask = later.parse.recur().every(1).minute();
-  var moonthTask = later.parse.recur()
+  var minuteTask = later.parse.recur().every(30).minute();
+  var monthTask = later.parse.recur()
     .every(1).month().last().dayOfMonth()
     .on('18:00:00').time();
   later.setInterval(StockWarn, minuteTask);
-  later.setInterval(sendEmailOfStockInfo, moonthTask);
+  later.setInterval(sendEmailOfStockInfo, monthTask);
 };
 
 module.exports = Cron;

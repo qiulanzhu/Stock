@@ -1,5 +1,6 @@
 /* Third Party Modules */
 var nodeMailer = require('nodemailer');
+var moment = require('moment');
 
 /* Own Modules */
 var config = require('../config.json');
@@ -13,7 +14,7 @@ exports.sendEmail = function (body) {
   var mailOptions = {
     from: '"发送者姓名" <jin_yaoshi@163.com>', // sender address
     to: '178673693@qq.com', // list of receivers
-    subject: '一月份股票数据', // Subject line
+    subject: moment().format('MM') + '股票数据', // Subject line
     text: '大盘增长率：;该股增长率：', // plaintext body
     html: body // html body
   };

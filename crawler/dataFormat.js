@@ -42,16 +42,66 @@ DataFormat.toEmailValueOfHistory = function (originalData, tradeDay) {
 };
 
 DataFormat.toHtmlBody = function (emailValue) {
-  var stockName = emailValue.stockName;
-  var purchaseDay = emailValue.purchaseDay;
-  var monthBeginTradeDay = emailValue.monthBeginTradeDay;
-  var searchDay = emailValue.searchDay;
-  var purchasePrice = emailValue.purchasePrice;
-  var historyPrice = emailValue.historyPrice;
-  var currentPrice = emailValue.currentPrice;
-  var purchaseAllDays = emailValue.purchaseAllDays;
-  var rateOfMonth = emailValue.rateOfMonth;
-  var rateOfPurchase = emailValue.rateOfPurchase;
+  logger.enter(emailValue);
+
+  var row =
+    '  <tr align="center"> ' +
+    '    <td>%s</td> ' +
+    '    <td>%s</td> ' +
+    '    <td>%s</td> ' +
+    '    <td>%s</td> ' +
+    '    <td>%f</td> ' +
+    '    <td>%f</td> ' +
+    '    <td>%f</td> ' +
+    '    <td>%d</td> ' +
+    '    <td>%s</td> ' +
+    '    <td>%s</td> ' +
+    '  </tr> ';
+  var rows = '';
+
+  var stockName = '';
+  var purchaseDay = '';
+  var monthBeginTradeDay = '';
+  var searchDay = '';
+  var purchasePrice = 0;
+  var historyPrice = 0;
+  var currentPrice = 0;
+  var purchaseAllDays = 0;
+  var rateOfMonth = '';
+  var rateOfPurchase = '';
+
+  _.forEach(emailValue, function (item) {
+    logger.ndump('item', item);
+    
+    stockName = item.stockName;
+    purchaseDay = item.purchaseDay;
+    monthBeginTradeDay = item.monthBeginTradeDay;
+    searchDay = item.searchDay;
+    purchasePrice = item.purchasePrice;
+    historyPrice = item.historyPrice;
+    currentPrice = item.currentPrice;
+    purchaseAllDays = item.purchaseAllDays;
+    rateOfMonth = item.rateOfMonth;
+    rateOfPurchase = item.rateOfPurchase;
+
+    rows += vsprintf(row,
+      [
+        stockName,
+        purchaseDay,
+        moment(monthBeginTradeDay, 'YYYYMMDD').format('YYYY-MM-DD'),
+        moment(searchDay, 'YYYYMMDD').format('YYYY-MM-DD'),
+        purchasePrice,
+        historyPrice,
+        currentPrice,
+        purchaseAllDays,
+        rateOfMonth,
+        rateOfPurchase
+      ]
+    );
+
+    logger.debug('rows', rows);
+  });
+
   
   var htmlBody =
     '<table border="1px" style="border-collapse:collapse">' +
@@ -67,34 +117,8 @@ DataFormat.toHtmlBody = function (emailValue) {
     '    <th> 当月增长率 </th> ' +
     '    <th> 购买期增长率 </th> ' +
     '  </tr> ' +
-    '  <tr align="center"> ' +
-    '    <td>%s</td> ' +
-    '    <td>%s</td> ' +
-    '    <td>%s</td> ' +
-    '    <td>%s</td> ' +
-    '    <td>%f</td> ' +
-    '    <td>%f</td> ' +
-    '    <td>%f</td> ' +
-    '    <td>%d</td> ' +
-    '    <td>%s</td> ' +
-    '    <td>%s</td> ' +
-    '  </tr> ' +
+    rows +
     '</table> ';
-
-  htmlBody = vsprintf(htmlBody,
-    [
-      stockName,
-      purchaseDay,
-      moment(monthBeginTradeDay, 'YYYYMMDD').format('YYYY-MM-DD'),
-      moment(searchDay, 'YYYYMMDD').format('YYYY-MM-DD'),
-      purchasePrice,
-      historyPrice,
-      currentPrice,
-      purchaseAllDays,
-      rateOfMonth,
-      rateOfPurchase
-    ]
-  );
 
   logger.ndump('htmlBody', htmlBody);
   return htmlBody;

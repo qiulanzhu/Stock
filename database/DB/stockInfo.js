@@ -14,9 +14,9 @@ function checkExist(code, callback) {
     table.string('purchaseDay');
     table.string('monthBeginTradeDay');
     table.string('searchDay');
-    table.float('purchasePrice');
-    table.float('historyPrice');
-    table.float('currentPrice');
+    table.float('purchasePrice',9,3);
+    table.float('historyPrice',9,3);
+    table.float('currentPrice',9,3);
     table.integer('purchaseAllDays');
     table.string('rateOfMonth');
     table.string('rateOfPurchase');
@@ -31,6 +31,25 @@ function checkExist(code, callback) {
 function StockInfo() {
   
 }
+
+StockInfo.get = function (code, callback) {
+  checkExist(code, function (err) {
+    if(err){
+      logger.error(err);
+      return callback(err);
+    }
+
+    var sql = knex.select('code','stockName','purchaseDay','monthBeginTradeDay',
+      'searchDay','purchasePrice','historyPrice','currentPrice','purchaseAllDays',
+      'rateOfMonth','rateOfPurchase')
+      .from(code)
+      .orderBy('searchDay', 'asc')
+      .toString();
+
+    logger.sql(sql);
+    mysql.query(sql, callback);
+  });
+};
 
 StockInfo.save = function (stockInfo, callback) {
   checkExist(stockInfo.code, function (err) {
