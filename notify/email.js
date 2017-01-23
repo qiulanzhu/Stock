@@ -13,7 +13,7 @@ exports.sendEmail = function (body) {
 //内容配置
   var mailOptions = {
     from: '"发送者姓名" <jin_yaoshi@163.com>', // sender address
-    to: '178673693@qq.com', // list of receivers
+    to: 'qy_stone@126.com', // list of receivers
     subject: moment().format('MM') + '股票数据', // Subject line
     text: '大盘增长率：;该股增长率：', // plaintext body
     html: body // html body
