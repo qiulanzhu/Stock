@@ -22,26 +22,31 @@ router.get('/', function (req, res, next) {
 });
 
 router.get('/info', function (req, res) {
-  logger.ndump('req.query', req.query);
-  var code = req.query.code;
+  var stockArr = _.keys(config.stockCodeAndPurchasePrice);
+  var stockInfoArr = [];
+  async.map(stockArr,
+    function (item, done) {
+      integrateData.getDataOfHtmlBody(item, function (err, newStockInfo) {
+        if (err) {
+          logger.error(err);
+          return done(err);
+        }
 
-  integrateData.getDataOfHtmlBody(code, function (err, newStockInfo) {
-    if (err) {
-      logger.error(err);
-      return done(err);
-    }
-
-    stockInfo.get(newStockInfo.code, function (err, stockInfoArr) {
-      if(err){
+        stockInfoArr.push(newStockInfo);
+        done();
+      })
+    },
+    function (err) {
+      if (err) {
         logger.error(err);
-        return done(err);
+        return res.end(err);
       }
-
-      stockInfoArr.push(newStockInfo);
+      stockInfoArr = _.sortBy(stockInfoArr, function (item) {
+        return Number(item.rateOfPurchase.split('%')[0]);
+      });
       var htmlBody = dataFormat.toHtmlBody(stockInfoArr);
       res.end(htmlBody);
     });
-  })
 });
 
 router.get('/history', function (req, res) {
