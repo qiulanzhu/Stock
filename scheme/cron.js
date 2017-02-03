@@ -17,6 +17,7 @@ function Cron() {
 
 function sendEmailOfStockInfo() {
   var stockArr = _.keys(config.stockCodeAndPurchasePrice);
+  var totalHtmlBody = '';
   async.map(stockArr,
     function (item, done) {
       integrateData.getDataOfHtmlBody(item, function (err, newStockInfo) {
@@ -33,7 +34,7 @@ function sendEmailOfStockInfo() {
 
           stockInfoArr.push(newStockInfo);
           var htmlBody = dataFormat.toHtmlBody(stockInfoArr);
-          email.sendEmail(htmlBody);
+          totalHtmlBody += htmlBody;
 
           stockInfo.save(newStockInfo, function (err, result) {
             if(err){
@@ -50,6 +51,8 @@ function sendEmailOfStockInfo() {
       if (err) {
         return email.sendEmail(err);
       }
+
+      email.sendEmail(totalHtmlBody);
     });
 }
 
