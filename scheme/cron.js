@@ -85,7 +85,8 @@ function StockWarn() {
 }
 
 Cron.startTask = function () {
-  var minuteTask = later.parse.recur().every(30).minute();
+  var minuteTask = later.parse.recur().every(30).minute()
+    .except().on('09:00:00').time();
   var monthTask = later.parse.recur()
     .every(1).month().last().dayOfMonth()
     .on('18:00:00').time();
