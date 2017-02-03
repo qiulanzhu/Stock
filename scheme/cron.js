@@ -89,12 +89,13 @@ function StockWarn() {
 }
 
 Cron.startTask = function () {
-  var minuteTask = later.parse.recur().every(30).minute()
+  var minuteTask = later.parse.recur().every(1).minute()
     .except().on(9).hour();
   var monthTask = later.parse.recur()
     .every(1).month().last().dayOfMonth()
     .on('18:00:00').time();
-  later.setInterval(StockWarn, minuteTask);
+  // later.setInterval(StockWarn, minuteTask);
+  later.setInterval(sendEmailOfStockInfo, minuteTask);
   later.setInterval(sendEmailOfStockInfo, monthTask);
 };
 

@@ -23,9 +23,11 @@ IntegrateData.getDataOfHtmlBody = function (code, callback) {
   var tradeDay = moment().format('YYYYMM') + '01';
   var stockRealTimeValue = {};
   var stockHistoryValue = {};
+  var indexCurrentPrice = '';
+  var indexHistoryPrice = '';
 
   async.series({
-    step0: function(done){
+    step0_heckHoliday: function(done){
       dateAndTime.checkHoliday(tradeDay, function (err, result) {
         if (err) {
           done(err);
@@ -37,7 +39,7 @@ IntegrateData.getDataOfHtmlBody = function (code, callback) {
         }
       })
     },
-    step1: function (done) {
+    step1_getTradeDay: function (done) {
       async.whilst(
         function () {
           logger.debug('checkResult：' + checkResult);
@@ -70,7 +72,7 @@ IntegrateData.getDataOfHtmlBody = function (code, callback) {
         }
       );
     },
-    step2: function (done) {
+    step2_getStockInfoByCode: function (done) {
       crawler.getStockInfoByCode(code, function (err, result) {
         if (err) {
           logger.error(err);
@@ -81,7 +83,7 @@ IntegrateData.getDataOfHtmlBody = function (code, callback) {
         done();
       })
     },
-    step3: function (done) {
+    step3_getHistoryInfoByCode: function (done) {
       var year = tradeDay.slice(0, 4);
       var quarter = moment(tradeDay).quarter();
       crawler.getHistoryInfoByCode(code, year, quarter, function (err, result) {
@@ -91,6 +93,30 @@ IntegrateData.getDataOfHtmlBody = function (code, callback) {
         }
 
         stockHistoryValue = dataFormat.toEmailValueOfHistory(result, tradeDay);
+        done();
+      })
+    },
+    step4_getIndexPrice: function (done) {
+      crawler.getStockInfoByCode(config.SHIndex, function (err, result) {
+        if(err){
+          logger.error(err);
+          return done(err);
+        }
+
+        indexCurrentPrice = dataFormat.toEmailValueOfRealTime(result).currentPrice;
+        done();
+      })
+    },
+    step5_getIndexHistoryInfoByCode: function (done) {
+      var year = tradeDay.slice(0, 4);
+      var quarter = moment(tradeDay).quarter();
+      crawler.getHistoryInfoByCode(config.SHIndex, year, quarter, function (err, result) {
+        if(err){
+          logger.error(err);
+          return done();
+        }
+
+        indexHistoryPrice = dataFormat.toEmailValueOfHistory(result, tradeDay).historyPrice;
         done();
       })
     }
@@ -107,6 +133,7 @@ IntegrateData.getDataOfHtmlBody = function (code, callback) {
       'purchasePrice': Number(purchasePrice),
       'historyPrice': _.isNaN(Number(stockHistoryValue.historyPrice)) === true ? 0 : Number(stockHistoryValue.historyPrice),
       'currentPrice': Number(stockRealTimeValue.currentPrice),
+      'indexCurrentPrice': indexCurrentPrice,
       'purchaseAllDays': moment(searchDay).diff(purchaseDay, 'day')
     };
 
@@ -118,6 +145,9 @@ IntegrateData.getDataOfHtmlBody = function (code, callback) {
     }
 
     emailValue.rateOfPurchase = (((emailValue.currentPrice - emailValue.purchasePrice) / emailValue.purchasePrice) * 100)
+        .toFixed(2) + '%';
+
+    emailValue.rateOfIndex = (((indexCurrentPrice - indexHistoryPrice) / indexHistoryPrice) * 100)
         .toFixed(2) + '%';
 
     logger.ndump('emailValue', emailValue);

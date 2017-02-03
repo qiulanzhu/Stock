@@ -13,12 +13,17 @@ function Stock() {
 }
 
 Stock.getStockInfoByCode = function (code, callback) {
-  if (code.length != 6) {
+  var url = '';
+
+  if (code.length === 8) {
+    url = config.crawlerRealTimeAddress + code;
+  }else if(code.length === 6){
+    var prefix = code.slice(0, 1) === '6' ? 'sh' : 'sz';
+    url = config.crawlerRealTimeAddress + prefix + code;
+    logger.ndump('url', url);
+  }else {
     return callback('code.length != 6');
   }
-  var prefix = code.slice(0, 1) === '6' ? 'sh' : 'sz';
-  var url = config.crawlerRealTimeAddress + prefix + code;
-  logger.ndump('url', url);
 
   superagent
     .get(url)

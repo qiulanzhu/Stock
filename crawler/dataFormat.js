@@ -53,7 +53,9 @@ DataFormat.toHtmlBody = function (emailValue) {
     '    <td>%f</td> ' +
     '    <td>%f</td> ' +
     '    <td>%f</td> ' +
+    '    <td>%f</td> ' +
     '    <td>%d</td> ' +
+    '    <td>%s</td> ' +
     '    <td>%s</td> ' +
     '    <td>%s</td> ' +
     '  </tr> ';
@@ -66,7 +68,9 @@ DataFormat.toHtmlBody = function (emailValue) {
   var purchasePrice = 0;
   var historyPrice = 0;
   var currentPrice = 0;
+  var indexCurrentPrice = 0;
   var purchaseAllDays = 0;
+  var rateOfIndex = '';
   var rateOfMonth = '';
   var rateOfPurchase = '';
 
@@ -80,7 +84,9 @@ DataFormat.toHtmlBody = function (emailValue) {
     purchasePrice = item.purchasePrice;
     historyPrice = item.historyPrice;
     currentPrice = item.currentPrice;
+    indexCurrentPrice = item.indexCurrentPrice;
     purchaseAllDays = item.purchaseAllDays;
+    rateOfIndex = item.rateOfIndex;
     rateOfMonth = item.rateOfMonth;
     rateOfPurchase = item.rateOfPurchase;
 
@@ -93,7 +99,9 @@ DataFormat.toHtmlBody = function (emailValue) {
         purchasePrice,
         historyPrice,
         currentPrice,
+        indexCurrentPrice,
         purchaseAllDays,
+        rateOfIndex,
         rateOfMonth,
         rateOfPurchase
       ]
@@ -113,7 +121,9 @@ DataFormat.toHtmlBody = function (emailValue) {
     '    <th> 成本价格 </th> ' +
     '    <th> 月初价格 </th> ' +
     '    <th> 当前价格 </th> ' +
+    '    <th> 指数价格 </th> ' +
     '    <th> 购买天数 </th> ' +
+    '    <th> 指数增长率 </th> ' +
     '    <th> 当月增长率 </th> ' +
     '    <th> 购买期增长率 </th> ' +
     '  </tr> ' +

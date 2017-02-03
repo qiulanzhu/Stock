@@ -17,7 +17,9 @@ function checkExist(code, callback) {
     table.float('purchasePrice',9,3);
     table.float('historyPrice',9,3);
     table.float('currentPrice',9,3);
+    table.float('indexCurrentPrice',9,3);
     table.integer('purchaseAllDays');
+    table.string('rateOfIndex');
     table.string('rateOfMonth');
     table.string('rateOfPurchase');
     table.timestamp('created_at').defaultTo(knex.fn.now());
