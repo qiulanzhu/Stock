@@ -96,8 +96,7 @@ Cron.startTask = function () {
   var monthTask = later.parse.recur()
     .every(1).month().last().dayOfMonth()
     .on('18:00:00').time();
-  // later.setInterval(StockWarn, minuteTask);
-  later.setInterval(sendEmailOfStockInfo, minuteTask);
+  later.setInterval(StockWarn, minuteTask);
   later.setInterval(sendEmailOfStockInfo, monthTask);
 };
 
