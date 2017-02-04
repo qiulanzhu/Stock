@@ -17,6 +17,7 @@ function checkExist(code, callback) {
     table.float('purchasePrice',9,3);
     table.float('historyPrice',9,3);
     table.float('currentPrice',9,3);
+    table.float('indexHistoryPrice',9,3);
     table.float('indexCurrentPrice',9,3);
     table.integer('purchaseAllDays');
     table.string('rateOfIndex');
@@ -42,8 +43,8 @@ StockInfo.get = function (code, callback) {
     }
 
     var sql = knex.select('code','stockName','purchaseDay','monthBeginTradeDay',
-      'searchDay','purchasePrice','historyPrice','currentPrice','purchaseAllDays',
-      'rateOfMonth','rateOfPurchase')
+      'searchDay','purchasePrice','historyPrice','currentPrice','indexHistoryPrice','indexCurrentPrice','purchaseAllDays',
+      'rateOfIndex','rateOfMonth','rateOfPurchase')
       .from(code)
       .orderBy('searchDay', 'asc')
       .toString();

@@ -108,15 +108,15 @@ IntegrateData.getDataOfHtmlBody = function (code, callback) {
       })
     },
     step5_getIndexHistoryInfoByCode: function (done) {
-      var year = tradeDay.slice(0, 4);
-      var quarter = moment(tradeDay).quarter();
+      var year = purchaseDay.slice(0, 4);
+      var quarter = moment(purchaseDay).quarter();
       crawler.getHistoryInfoByCode(config.SHIndex, year, quarter, function (err, result) {
         if(err){
           logger.error(err);
           return done();
         }
 
-        indexHistoryPrice = dataFormat.toEmailValueOfHistory(result, tradeDay).historyPrice;
+        indexHistoryPrice = dataFormat.toEmailValueOfHistory(result, purchaseDay).historyPrice;
         done();
       })
     }
@@ -133,9 +133,13 @@ IntegrateData.getDataOfHtmlBody = function (code, callback) {
       'purchasePrice': Number(purchasePrice),
       'historyPrice': _.isNaN(Number(stockHistoryValue.historyPrice)) === true ? 0 : Number(stockHistoryValue.historyPrice),
       'currentPrice': Number(stockRealTimeValue.currentPrice),
-      'indexCurrentPrice': indexCurrentPrice,
+      'indexHistoryPrice': Number(indexHistoryPrice),
+      'indexCurrentPrice': Number(indexCurrentPrice),
       'purchaseAllDays': moment(searchDay).diff(purchaseDay, 'day')
     };
+
+    emailValue.rateOfIndex = (((emailValue.indexCurrentPrice - emailValue.indexHistoryPrice) / emailValue.indexHistoryPrice) * 100)
+        .toFixed(2) + '%';
 
     if( emailValue.historyPrice === 0 ){
       emailValue.rateOfMonth = '%'
@@ -145,9 +149,6 @@ IntegrateData.getDataOfHtmlBody = function (code, callback) {
     }
 
     emailValue.rateOfPurchase = (((emailValue.currentPrice - emailValue.purchasePrice) / emailValue.purchasePrice) * 100)
-        .toFixed(2) + '%';
-
-    emailValue.rateOfIndex = (((indexCurrentPrice - indexHistoryPrice) / indexHistoryPrice) * 100)
         .toFixed(2) + '%';
 
     logger.ndump('emailValue', emailValue);

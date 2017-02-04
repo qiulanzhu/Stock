@@ -22,7 +22,7 @@ Stock.getStockInfoByCode = function (code, callback) {
     url = config.crawlerRealTimeAddress + prefix + code;
     logger.ndump('url', url);
   }else {
-    return callback('code.length != 6');
+    return callback('code.length is invalid!');
   }
 
   superagent
@@ -54,11 +54,15 @@ Stock.getStockInfoByCode = function (code, callback) {
 };
 
 Stock.getHistoryInfoByCode = function (code, year, quarter, callback) {
-  if (code.length != 6) {
-    return callback('code.length != 6');
+  var url = '';
+  if (code.length === 8) {
+    url = config.crawlerHistoryAddress + code.slice(2) + '/type/S.phtml';
+  }else if(code.length === 6){
+    url = config.crawlerHistoryAddress + code + '.phtml';
+  }else {
+    return callback('code.length is invalid!');
   }
 
-  var url = config.crawlerHistoryAddress + code + '.phtml';
   logger.ndump('url', url);
 
   superagent

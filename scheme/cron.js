@@ -25,6 +25,7 @@ function sendEmailOfStockInfo() {
           logger.error(err);
           return done(err);
         }
+        logger.ndump('newstockInfo', newStockInfo);
         
         stockInfo.get(newStockInfo.code, function (err, stockInfoArr) {
           if(err){
@@ -32,6 +33,7 @@ function sendEmailOfStockInfo() {
             return done(err);
           }
 
+          logger.ndump('stockInfoArr', stockInfoArr);
           stockInfoArr.push(newStockInfo);
           var htmlBody = dataFormat.toHtmlBody(stockInfoArr);
           totalHtmlBody += htmlBody;
@@ -74,8 +76,8 @@ function StockWarn() {
             }
 
             stockInfoArr.push(newStockInfo);
-            var htmlBody = dataFormat.toHtmlBody(stockInfoArr);
-            email.sendEmail(htmlBody);
+            var htmlBodyForWarn = dataFormat.toHtmlBody(stockInfoArr);
+            email.sendEmail(htmlBodyForWarn);
             done();
           });
         }
