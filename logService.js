@@ -251,7 +251,7 @@ function ndump(name, obj) {
  * Get current time in YYYY-mm-dd HH:MM:SS.ms format
  */
 function timestamp() {
-  var ts_hms = new Date();
+  var ts_hms = new Date(Date.now() + (8 * 60 * 60 * 1000));
   return ts_hms.getFullYear() + '-' +
     ("0" + (ts_hms.getMonth() + 1)).slice(-2) + '-' +
     ("0" + (ts_hms.getDate())).slice(-2) + ' ' +
