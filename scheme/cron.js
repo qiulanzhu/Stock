@@ -1,6 +1,6 @@
 /* Third Party Modules */
 var later = require('later');
-later.date.localTime();
+later.date.UTC();
 var async = require('async');
 var _ = require('lodash');
 
