@@ -1,6 +1,5 @@
 /* Third Party Modules */
 var later = require('later');
-later.date.localTime();
 var async = require('async');
 var _ = require('lodash');
 
@@ -91,11 +90,22 @@ function StockWarn() {
 }
 
 Cron.startTask = function () {
-  var minuteTask = later.parse.recur().every(30).minute()
-    .except().on(9).hour();
+  var arr = [9,10,11,13,14,15];
+  var basic = {h: arr, m: [0,30]};
+  var exception = [
+    {h: [9], m:[0]}
+  ];
+
+  var minuteTask = {
+    schedules:[basic],
+    exceptions:exception
+  };
+
   var monthTask = later.parse.recur()
     .every(1).month().last().dayOfMonth()
     .on('18:00:00').time();
+
+  later.date.localTime();
   later.setInterval(StockWarn, minuteTask);
   later.setInterval(sendEmailOfStockInfo, monthTask);
 };
