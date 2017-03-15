@@ -2,6 +2,7 @@
 var later = require('later');
 var async = require('async');
 var _ = require('lodash');
+var fs = require('fs');
 
 /* Own Modules */
 var integrateData = require('../crawler/integrateData');
@@ -25,9 +26,9 @@ function sendEmailOfStockInfo() {
           return done(err);
         }
         logger.ndump('newstockInfo', newStockInfo);
-        
+
         stockInfo.get(newStockInfo.code, function (err, stockInfoArr) {
-          if(err){
+          if (err) {
             logger.error(err);
             return done(err);
           }
@@ -38,13 +39,13 @@ function sendEmailOfStockInfo() {
           totalHtmlBody += htmlBody;
 
           stockInfo.save(newStockInfo, function (err, result) {
-            if(err){
+            if (err) {
               logger.error(err);
             }
             logger.ndump('result', result);
           });
           done();
-          
+
         });
       })
     },
@@ -67,9 +68,17 @@ function StockWarn() {
           return done(err);
         }
 
-        if(newStockInfo.rateOfPurchase.split('%')[0] <= config.threshold){
+        config = JSON.parse(fs.readFileSync('../config.json').toString());
+        if (config.stockCodeAndPurchasePrice[newStockInfo.code].maxPrice < newStockInfo.currentPrice ){
+          config.stockCodeAndPurchasePrice[newStockInfo.code].maxPrice = newStockInfo.currentPrice;
+          fs.writeFileSync('../config.json', JSON.stringify(config, null, 2), 'utf8');
+        }
+
+        config = JSON.parse(fs.readFileSync('../config.json').toString());
+        if ((newStockInfo.currentPrice <= 0.75 * config.stockCodeAndPurchasePrice[newStockInfo.code].maxPrice)
+          || (newStockInfo.rateOfPurchase.split('%')[0] <= config.threshold)) {
           stockInfo.get(newStockInfo.code, function (err, stockInfoArr) {
-            if(err){
+            if (err) {
               logger.error(err);
               return done(err);
             }
@@ -90,15 +99,15 @@ function StockWarn() {
 }
 
 Cron.startTask = function () {
-  var arr = [9,10,11,13,14,15];
-  var basic = {h: arr, m: [0,30]};
+  var arr = [9, 10, 11, 13, 14, 15];
+  var basic = {h: arr, m: [0, 30]};
   var exception = [
-    {h: [9], m:[0]}
+    {h: [9], m: [0]}
   ];
 
   var minuteTask = {
-    schedules:[basic],
-    exceptions:exception
+    schedules: [basic],
+    exceptions: exception
   };
 
   var monthTask = later.parse.recur()
