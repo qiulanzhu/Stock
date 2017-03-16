@@ -119,8 +119,8 @@ Cron.startTask = function () {
   var minTask = later.parse.text('every 1 mins');
 
   later.date.localTime();
-  later.setInterval(StockWarn, minTask);
-  // later.setInterval(StockWarn, halfHourTask);
+  // later.setInterval(StockWarn, minTask);
+  later.setInterval(StockWarn, halfHourTask);
   later.setInterval(sendEmailOfStockInfo, monthTask);
 };
 
