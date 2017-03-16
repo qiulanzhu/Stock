@@ -3,6 +3,7 @@ var later = require('later');
 var async = require('async');
 var _ = require('lodash');
 var fs = require('fs');
+var path = require('path');
 
 /* Own Modules */
 var integrateData = require('../crawler/integrateData');
@@ -11,6 +12,7 @@ var email = require('../notify/email');
 var stockInfo = require('../database/DB/stockInfo');
 var config = require('../config.json');
 var logger = require('../logService');
+var configPath = path.join(__dirname, '../config.json');
 
 function Cron() {
 }
@@ -68,13 +70,13 @@ function StockWarn() {
           return done(err);
         }
 
-        config = JSON.parse(fs.readFileSync('../config.json').toString());
+        config = JSON.parse(fs.readFileSync(configPath).toString());
         if (config.stockCodeAndPurchasePrice[newStockInfo.code].maxPrice < newStockInfo.currentPrice ){
           config.stockCodeAndPurchasePrice[newStockInfo.code].maxPrice = newStockInfo.currentPrice;
-          fs.writeFileSync('../config.json', JSON.stringify(config, null, 2), 'utf8');
+          fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf8');
         }
 
-        config = JSON.parse(fs.readFileSync('../config.json').toString());
+        config = JSON.parse(fs.readFileSync(configPath).toString());
         if ((newStockInfo.currentPrice <= 0.75 * config.stockCodeAndPurchasePrice[newStockInfo.code].maxPrice)
           || (newStockInfo.rateOfPurchase.split('%')[0] <= config.threshold)) {
           stockInfo.get(newStockInfo.code, function (err, stockInfoArr) {
@@ -105,7 +107,7 @@ Cron.startTask = function () {
     {h: [9], m: [0]}
   ];
 
-  var minuteTask = {
+  var halfHourTask = {
     schedules: [basic],
     exceptions: exception
   };
@@ -114,8 +116,11 @@ Cron.startTask = function () {
     .every(1).month().last().dayOfMonth()
     .on('18:00:00').time();
 
+  var minTask = later.parse.text('every 1 mins');
+
   later.date.localTime();
-  later.setInterval(StockWarn, minuteTask);
+  later.setInterval(StockWarn, minTask);
+  // later.setInterval(StockWarn, halfHourTask);
   later.setInterval(sendEmailOfStockInfo, monthTask);
 };
 
