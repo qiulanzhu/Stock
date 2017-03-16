@@ -77,7 +77,7 @@ function StockWarn() {
         }
 
         config = JSON.parse(fs.readFileSync(configPath).toString());
-        if ((newStockInfo.currentPrice <= 0.75 * config.stockCodeAndPurchasePrice[newStockInfo.code].maxPrice)
+        if ((newStockInfo.currentPrice <= 0.85 * config.stockCodeAndPurchasePrice[newStockInfo.code].maxPrice)
           || (newStockInfo.rateOfPurchase.split('%')[0] <= config.threshold)) {
           stockInfo.get(newStockInfo.code, function (err, stockInfoArr) {
             if (err) {
@@ -119,8 +119,8 @@ Cron.startTask = function () {
   var minTask = later.parse.text('every 1 mins');
 
   later.date.localTime();
-  // later.setInterval(StockWarn, minTask);
-  later.setInterval(StockWarn, halfHourTask);
+  later.setInterval(StockWarn, minTask);
+  // later.setInterval(StockWarn, halfHourTask);
   later.setInterval(sendEmailOfStockInfo, monthTask);
 };
 
